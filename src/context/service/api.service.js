@@ -2,8 +2,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Create a base query instance for Redux Toolkit Query
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:8080/api",
-  // baseUrl:"https://shu-brend-server.vercel.app/",
+  // baseUrl: "http://localhost:8080/api",
+  baseUrl:"https://shu-brend-server.vercel.app/api",
 
   prepareHeaders: (headers, { getState }) => {
     const token = localStorage.getItem("access_token");
