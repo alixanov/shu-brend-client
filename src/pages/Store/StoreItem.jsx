@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { Table, Input, Select, Button, Popconfirm, message, Modal } from "antd";
 import {
@@ -19,7 +17,7 @@ import { FaPrint } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { IoMdAdd } from "react-icons/io";
 import Barcode from "react-barcode";
-import ReactToPrint from "react-to-print"; // For printing functionality
+import ReactToPrint from "react-to-print";
 
 const { Option } = Select;
 
@@ -36,6 +34,7 @@ export default function StoreItem() {
   const [updateQuantity] = useUpdateQuantityMutation();
   const [updateProduct] = useUpdateProductMutation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [barcodeSearch, setBarcodeSearch] = useState(""); // Добавлено для поиска по штрих-коду
   const [stockFilter, setStockFilter] = useState("newlyAdded");
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -61,13 +60,17 @@ export default function StoreItem() {
   const filteredStoreProducts = sortedStoreProducts
     .filter((product) => {
       const query = searchQuery.toLowerCase();
+      const barcodeQuery = barcodeSearch.toLowerCase();
       const matchesModel = product?.product_id?.model
         .toLowerCase()
         .includes(query);
       const matchesName = product?.product_id?.product_name
         .toLowerCase()
         .includes(query);
-      return matchesModel || matchesName;
+      const matchesBarcode = product?.product_id?.barcode
+        .toLowerCase()
+        .includes(barcodeQuery);
+      return (matchesModel || matchesName) && (!barcodeQuery || matchesBarcode);
     })
     .filter((product) => {
       if (stockFilter === "all") return true;
@@ -156,19 +159,22 @@ export default function StoreItem() {
       dataIndex: "barcode",
       key: "barcode",
       render: (text, item) => (
-        <ReactToPrint
-          trigger={() => (
-            <Button
-              type="primary"
-              style={{ marginLeft: 10 }}
-              onClick={() => setPrintData(preparePrintData(item))}
-            >
-              <FaPrint /> Chop etish
-            </Button>
-          )}
-          content={() => printRef.current}
-          onBeforeGetContent={() => setPrintData(preparePrintData(item))}
-        />
+        <div>
+          <span>{item?.product_id?.barcode}</span>
+          <ReactToPrint
+            trigger={() => (
+              <Button
+                type="primary"
+                style={{ marginLeft: 10 }}
+                onClick={() => setPrintData(preparePrintData(item))}
+              >
+                <FaPrint /> Chop etish
+              </Button>
+            )}
+            content={() => printRef.current}
+            onBeforeGetContent={() => setPrintData(preparePrintData(item))}
+          />
+        </div>
       ),
     },
     {
@@ -325,16 +331,22 @@ export default function StoreItem() {
         </form>
       </Modal>
 
-      <div style={{ display: "flex", marginBottom: 20 }}>
+      <div style={{ display: "flex", marginBottom: 20, gap: "10px" }}>
         <Input
           placeholder="Model, nomi bo'yicha qidirish"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ marginRight: 10 }}
+          style={{ width: "200px" }}
+        />
+        <Input
+          placeholder="Shtrix kod bo'yicha qidirish"
+          value={barcodeSearch}
+          onChange={(e) => setBarcodeSearch(e.target.value)}
+          style={{ width: "200px" }}
         />
         <Select
           defaultValue="newlyAdded"
-          style={{ width: 200, marginLeft: 20 }}
+          style={{ width: 200 }}
           onChange={handleFilterChange}
         >
           <Option value="newlyAdded">Yangi qo'shilgan mahsulotlar</Option>
