@@ -333,7 +333,7 @@ export default function Kassa() {
               textAlign: "center",
             }}
           >
-            BOGʻISHAMOL QURILISH MOLLARI DOʻKONI <br />
+            SHU BREND DOʻKONI <br />
           </h1>
           <div className="chek_item">
             <b>
@@ -382,11 +382,11 @@ export default function Kassa() {
             }}
           >
             <span>Xaridingiz uchun raxmat!!!</span> <br />
-            <span>+99894 300 80 60 </span> <br />
-            <span>+99895 300 80 60 </span> <br />
+            <span>+998 94 138 33 33 </span> <br />
+            <span>+998 88 926 04 04 </span> <br />
           </p>
           <p>
-            <img width={"200px"} src={bir} alt="" />
+            {/* <img width={"200px"} src={bir} alt="" /> */}
           </p>
         </div>
       </Modal>

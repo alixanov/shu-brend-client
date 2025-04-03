@@ -41,12 +41,16 @@ export default function Usd() {
         </Col>
         <Col span={4}>
           <Button
-            style={{ marginLeft: 20 }}
-            type="primary"
+            style={{
+              marginLeft: 20,
+              background: "#1a2a6b",
+              color: "white", // Исправлена опечатка "whiti" на "white"
+            }}
             onClick={handleUsdRateChange}
           >
             Saqlash
           </Button>
+
         </Col>
       </Row>
     </div>

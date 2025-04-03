@@ -12,7 +12,8 @@ export const Login = memo(() => {
 
     try {
       const res = await axios.post(
-        "https://hozmak-b.vercel.app/api/login",
+        "http://localhost:8080/api/login",
+        // "https://shu-brend-server.vercel.app/api/login"
         value
       );
       const { token, success, role } = res.data;
