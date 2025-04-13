@@ -81,14 +81,14 @@ export default function Kassa() {
 
   const filteredProducts = searchTerm
     ? products?.filter(
-        (product) =>
-          product.product_name
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          product.barcode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (product.model &&
-            product.model.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
+      (product) =>
+        product.product_name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        product.barcode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.model &&
+          product.model.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
     : [];
 
   const handleSearchInput = (e) => {
@@ -107,6 +107,7 @@ export default function Kassa() {
 
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter" && isBarcodeScan) {
+      e.preventDefault(); // Prevent form submission when scanning barcode
       const product = products?.find(
         (p) => p.barcode.toLowerCase() === searchTerm.toLowerCase()
       );
@@ -121,17 +122,23 @@ export default function Kassa() {
 
   const handleSelectProduct = (product, isBarcode = false) => {
     const exists = selectedProducts.find((item) => item._id === product._id);
+    const storeProduct = storeProducts
+      ? storeProducts.find((p) => p.product_id?._id === product._id)
+      : null;
+
+    if (!storeProduct) {
+      message.error("Bu mahsulot dokonda mavjud emas!");
+      return;
+    }
+
+    const dokonStock = storeProduct.quantity || 0;
+
+    if (dokonStock === 0) {
+      message.error("Bu mahsulot dokonda mavjud emas!");
+      return;
+    }
+
     if (!exists) {
-      const storeProduct = storeProducts.find(
-        (p) => p.product_id?._id === product._id
-      );
-      const dokonStock = storeProduct ? storeProduct.quantity : 0;
-
-      if (dokonStock === 0) {
-        message.error("Bu mahsulot dokonda mavjud emas!");
-        return;
-      }
-
       const updatedProducts = [
         ...selectedProducts,
         {
@@ -139,7 +146,7 @@ export default function Kassa() {
           quantity: product.count_type === "kg" ? 0 : 1,
           sell_price:
             product.sell_currency === "usd"
-              ? product.sell_price * usdRateData.rate
+              ? product.sell_price * (usdRateData?.rate || 1)
               : product.sell_price,
         },
       ];
@@ -208,12 +215,12 @@ export default function Kassa() {
       for (const product of selectedProducts) {
         const sellPrice =
           paymentMethod === "usd"
-            ? product.sell_price * usdRateData.rate
+            ? product.sell_price * (usdRateData?.rate || 1)
             : product.sell_price;
 
-        const storeProduct = storeProducts.find(
-          (p) => p.product_id?._id === product._id
-        );
+        const storeProduct = storeProducts
+          ? storeProducts.find((p) => p.product_id?._id === product._id)
+          : null;
         if (!storeProduct) {
           message.error(
             `${product.product_name} mahsuloti dokonda mavjud emas!`
@@ -258,7 +265,7 @@ export default function Kassa() {
             quantity: product.quantity,
             total_price: sellPrice * product.quantity,
             payment_method: paymentMethod,
-            usd_rate: usdRateData.rate,
+            usd_rate: usdRateData?.rate || 1,
           };
           await recordSale(sale).unwrap();
         }
@@ -299,6 +306,40 @@ export default function Kassa() {
     setDebtorName(option.debtor.name);
     setDebtorPhone(option.debtor.phone);
   };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (selectedProducts.length > 0) {
+      showModal();
+    }
+  };
+
+  // This function will handle Enter key press for the entire document
+  const handleKeyDown = (e) => {
+    // Only proceed if there are selected products and the key pressed is Enter
+    if (e.key === 'Enter' && selectedProducts.length > 0 && !isModalVisible) {
+      // Check if the active element is not the search input
+      if (document.activeElement !== document.querySelector('input[placeholder="shtrix kodi, mahsulot nomi yoki modeli bo\'yicha qidirish..."]')) {
+        e.preventDefault();
+        showModal(); // Open the payment modal
+      }
+    }
+
+    // Handle Enter key press in the payment modal
+    if (e.key === 'Enter' && isModalVisible) {
+      e.preventDefault();
+      handleSellProducts(); // Confirm the payment
+    }
+  };
+
+  // Add event listener for key down when component mounts
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedProducts, isModalVisible, paymentMethod, debtorName, debtorPhone, debtDueDate]); // Re-add listener when these dependencies change
 
   return (
     <div className="kassa-container">
@@ -504,8 +545,7 @@ export default function Kassa() {
               dataIndex: "purchase_price",
               key: "purchase_price",
               render: (text, record) =>
-                `${text.toFixed(2)} ${
-                  record.sell_currency === "usd" ? "$" : "so'm"
+                `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"
                 }`,
             },
             {
@@ -513,8 +553,7 @@ export default function Kassa() {
               dataIndex: "sell_price",
               key: "sell_price",
               render: (text, record) =>
-                `${text.toFixed(2)} ${
-                  record.sell_currency === "usd" ? "$" : "so'm"
+                `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"
                 }`,
             },
             {
@@ -522,11 +561,12 @@ export default function Kassa() {
               dataIndex: "quantity",
               key: "quantity",
               render: (_, record) => {
-                const storeQuantity =
-                  storeProducts.find(
+                const storeQuantity = storeProducts
+                  ? storeProducts.find(
                     (product) => product.product_id?._id === record._id
-                  )?.quantity || 0;
-                return Number(storeQuantity).toFixed(1); // 99.8 ko'rinishida
+                  )?.quantity || 0
+                  : 0;
+                return Number(storeQuantity).toFixed(1);
               },
             },
             { title: "Shtrix kod", dataIndex: "barcode", key: "barcode" },
@@ -553,122 +593,127 @@ export default function Kassa() {
         />
 
         {selectedProducts.length > 0 && (
-          <div style={{ marginTop: 20 }}>
-            <h2>Tanlangan mahsulotlar:</h2>
-            <Table
-              dataSource={selectedProducts}
-              style={{ width: "100%" }}
-              columns={[
-                {
-                  title: "Mahsulot nomi",
-                  dataIndex: "product_name",
-                  key: "product_name",
-                },
-                { title: "Model", dataIndex: "model", key: "model" },
-                {
-                  title: "Tan narxi",
-                  dataIndex: "purchase_price",
-                  key: "purchase_price",
-                },
-                {
-                  title: "Narxi",
-                  render: (_, record) => (
-                    <AntdInput
-                      value={record.sell_price}
-                      onChange={(e) =>
-                        handleSellPriceChange(record._id, e.target.value)
-                      }
-                      type="number"
-                      step="0.01"
-                    />
-                  ),
-                },
-                { title: "Miqdori", dataIndex: "quantity", key: "quantity" },
-                { title: "Shtrix kod", dataIndex: "barcode", key: "barcode" },
-                {
-                  title: "Dokondagi miqdor",
-                  dataIndex: "quantity",
-                  key: "quantity",
-                  render: (_, record) => {
-                    const storeQuantity =
-                      storeProducts.find(
-                        (product) => product.product_id?._id === record._id
-                      )?.quantity || 0;
-                    return Number(storeQuantity).toFixed(1); // 99.8 ko'rinishida
+          <form onSubmit={handleFormSubmit}>
+            <div style={{ marginTop: 20 }}>
+              <h2>Tanlangan mahsulotlar:</h2>
+              <Table
+                dataSource={selectedProducts}
+                style={{ width: "100%" }}
+                columns={[
+                  {
+                    title: "Mahsulot nomi",
+                    dataIndex: "product_name",
+                    key: "product_name",
                   },
-                },
-                {
-                  title: "Soni",
-                  key: "quantity",
-                  render: (_, record) =>
-                    record.count_type === "kg" ? (
+                  { title: "Model", dataIndex: "model", key: "model" },
+                  {
+                    title: "Tan narxi",
+                    dataIndex: "purchase_price",
+                    key: "purchase_price",
+                  },
+                  {
+                    title: "Narxi",
+                    render: (_, record) => (
                       <AntdInput
-                        value={record.quantity}
+                        value={record.sell_price}
                         onChange={(e) =>
-                          handleQuantityChange(record._id, e.target.value)
+                          handleSellPriceChange(record._id, e.target.value)
                         }
                         type="number"
-                        step="0.1"
-                        min="0"
-                        placeholder="kg (e.g., 1.5)"
-                        style={{ width: "100px" }}
+                        step="0.01"
                       />
-                    ) : (
-                      <div>
-                        <Button
-                          onClick={() => handleQuantityChange(record._id, -1)}
-                          disabled={record.quantity <= 1}
-                        >
-                          -
-                        </Button>
-                        <span style={{ margin: "0 10px" }}>
-                          {record.quantity}
-                        </span>
-                        <Button
-                          onClick={() => handleQuantityChange(record._id, 1)}
-                        >
-                          +
-                        </Button>
-                      </div>
                     ),
-                },
-                {
-                  title: "Harakatlar",
-                  key: "actions",
-                  render: (_, record) => (
-                    <Button
-                      type="primary"
-                      danger
-                      onClick={() => handleRemoveProduct(record._id)}
-                    >
-                      O'chirish
-                    </Button>
-                  ),
-                },
-              ]}
-              rowKey="_id"
-              pagination={false}
-            />
+                  },
+                  { title: "Miqdori", dataIndex: "quantity", key: "quantity" },
+                  { title: "Shtrix kod", dataIndex: "barcode", key: "barcode" },
+                  {
+                    title: "Dokondagi miqdor",
+                    dataIndex: "quantity",
+                    key: "quantity",
+                    render: (_, record) => {
+                      const storeQuantity = storeProducts
+                        ? storeProducts.find(
+                          (product) => product.product_id?._id === record._id
+                        )?.quantity || 0
+                        : 0;
+                      return Number(storeQuantity).toFixed(1);
+                    },
+                  },
+                  {
+                    title: "Soni",
+                    key: "quantity",
+                    render: (_, record) =>
+                      record.count_type === "kg" ? (
+                        <AntdInput
+                          value={record.quantity}
+                          onChange={(e) =>
+                            handleQuantityChange(record._id, e.target.value)
+                          }
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="kg (e.g., 1.5)"
+                          style={{ width: "100px" }}
+                        />
+                      ) : (
+                        <div>
+                          <Button
+                            onClick={() => handleQuantityChange(record._id, -1)}
+                            disabled={record.quantity <= 1}
+                          >
+                            -
+                          </Button>
+                          <span style={{ margin: "0 10px" }}>
+                            {record.quantity}
+                          </span>
+                          <Button
+                            onClick={() => handleQuantityChange(record._id, 1)}
+                          >
+                            +
+                          </Button>
+                        </div>
+                      ),
+                  },
+                  {
+                    title: "Harakatlar",
+                    key: "actions",
+                    render: (_, record) => (
+                      <Button
+                        type="primary"
+                        danger
+                        onClick={() => handleRemoveProduct(record._id)}
+                      >
+                        O'chirish
+                      </Button>
+                    ),
+                  },
+                ]}
+                rowKey="_id"
+                pagination={false}
+              />
 
-            <div style={{ marginTop: 20, fontSize: "1.5em" }}>
-              <strong>Umumiy summa: </strong>
-              {totalAmount.toFixed(2)} so'm
+              <div style={{ marginTop: 20, fontSize: "1.5em" }}>
+                <strong>Umumiy summa: </strong>
+                {totalAmount.toFixed(2)} so'm
+              </div>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{ marginTop: 20 }}
+              >
+                Sotish
+              </Button>
             </div>
-            <Button
-              type="primary"
-              onClick={showModal}
-              style={{ marginTop: 20 }}
-            >
-              Sotish
-            </Button>
-          </div>
+          </form>
         )}
 
         <Modal
           title="To'lov usulini tanlang"
-          visible={isModalVisible}
+          open={isModalVisible}
           onOk={handleSellProducts}
           onCancel={handleCancel}
+          okText="Tasdiqlash"
+          cancelText="Bekor qilish"
         >
           <Form layout="vertical">
             <Form.Item label="To'lov usuli">
