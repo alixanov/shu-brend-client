@@ -1,11 +1,3 @@
-/* Kassa uchun maxsus stil */
-@import url(https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100;200;300;400;500;600;700&display=swap);
-.kassa-card {
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
 .kassa-container {
   max-width: 1920px;
   width: 100%;
@@ -13,147 +5,347 @@
   display: flex;
   align-items: start;
   justify-content: space-between;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .kassa-header {
   width: 20%;
   height: 100%;
-  background-color: #0f4c81;
+  /* background-color: #0f4c81; */
   border-right: 5px solid white;
   border-bottom: 5px solid white;
-  padding-left: 10px;
+  padding: 10px;
   display: flex;
   justify-content: start;
-  padding-top: 10px;
   flex-direction: column;
   align-items: start;
   gap: 10px;
 }
-::placeholder {
-  color: rgb(255, 255, 255) !important;
-}
-.ant-tabs-tab {
-  color: white !important;
-}
 
-.ant-tabs-content-holder {
-  color: white !important;
-}
-
-.ant-card {
-  border-bottom: 5px solid white;
-  border-radius: none;
-}
-
-.ant-card-body {
-  padding: 10px !important; /* Card ichki bo'shligi */
-}
-
-.chek_item > span {
-  font-size: 11px;
-  font-family: "Roboto Mono";
-  text-align: center;
-  /* white-space: nowrap; */
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.chek_wrapper {
+.kassa-card {
+  width: 80%;
+  height: 100%;
   display: flex;
   justify-content: space-between;
+  flex-direction: column-reverse;
+  align-items: stretch;
+
+  /* alignItems: "stretch"; */
+  background-color: #151f54;
+  color: white;
+  border-radius: 0.1rem;
+  overflow: auto;
+}
+
+.kassa-button {
+  background-color: #ffffff !important;
+  /* Белый фон */
+  color: #104d82 !important;
+  /* Текст кнопки */
+  border: none !important;
+  transition: background-color 0.3s ease, transform 0.2s ease !important;
+}
+
+.kassa-button:hover {
+  background-color: #e6e6e6 !important;
+  /* Легкий серый при наведении */
+  transform: translateY(-2px) !important;
+}
+
+
+.kassa-btn {
+  background-color: #1a2a6b !important;
+  /* Белый фон */
+  color: #e6e6e6 !important;
+  /* Текст кнопки */
+  border: none !important;
+  transition: background-color 0.3s ease, transform 0.2s ease !important;
+}
+
+.kassa-btn:hover {
+  background-color: #132054 !important;
+  transform: translateY(-2px) !important;
+}
+
+.kassa-button-danger {
+  background-color: #ff4d4f !important;
+  /* Красный для кнопки удаления */
+  color: #ffffff !important;
+}
+
+.kassa-button-danger:hover {
+  background-color: #d9363e !important;
+}
+
+.kassa-search-input {
+  margin-bottom: 20px;
+  width: 40%;
+}
+
+.kassa-table {
   width: 100%;
-  overflow: scroll;
-}
-.chek_qr {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: 50%;
 }
 
-.chek_item > p,
-.chek_qr > p {
-  font-size: 15px;
-  font-family: "Roboto Mono";
-  font-weight: 500;
-  text-align: center;
-}
-/* .chek_qr > p {
-  height: 40px;
-} */
-.chek_item {
-  display: flex;
-  align-items: center !important;
-  justify-content: space-between;
-  width: 100%;
-  flex-direction: column;
-  /* padding-left: 10px; */
+.kassa-selected-products {
+  margin-top: 20px;
 }
 
-.chek_item > span {
-  font-weight: 500;
-  /* margin-left: 10px; */
-}
-
-
-
-
-
-
-
-#tgqr_p{
-  width: 100%;
-  display: flex;
-  font-weight: bold;
-  flex-wrap: nowrap;
-  font-size: 14px;
-  align-items: center;
-
-}
-#tgqr{
-  width: 120px;
-}
-
-.table > tbody{
-  height: 120px;
-}
-
-
-.chek_item1{
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 5px;
-}
-.chek_item1 >p{
-  width: 50%;
-  font-size: 13px;
-}
-.qr_img{
-  width:30%;
+.kassa-quantity-control {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
-.qr_img >img{
-  width: 70px;
-  border: 1px solid black;
+
+.kassa-quantity-control span {
+  margin: 0 10px;
+  color: white;
 }
 
-#logo_img{
-  width: 150px;
+.kassa-quantity-input {
+  width: 100px;
 }
 
-.chek_item3{
-  width: 100%;
+.kassa-total-amount {
+  margin-top: 20px;
+  font-size: 1.5em;
+}
+
+.kassa-sell-button {
+  margin-top: 20px;
+}
+
+.kassa-receipt {
+  width: 80mm;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding-inline: 2px;
+  gap: 6px;
+  display: flex;
+}
+
+.kassa-chek-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   flex-direction: column;
 }
-.chek_item3 > p{
-  font-size: 20px;
-  font-weight: bold;
+
+/* Десктопные стили */
+@media (min-width: 769px) {
+  .kassa-container {
+    flex-direction: row;
+  }
+
+  .kassa-header {
+    width: 20%;
+    flex-direction: column;
+    justify-content: start;
+    
+  }
+
+  .kassa-card {
+    width: 80%;
+  }
+
+  .kassa-search-input {
+    width: 40%;
+  }
 }
 
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .kassa-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
 
+  .kassa-header {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 5px solid white;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 4px;
+  }
+
+  .kassa-header .kassa-button {
+    flex: 1 0 auto;
+    min-width: 110px;
+    font-size: 12px;
+    padding: 4px 8px;
+    height: auto;
+    margin: 2px;
+  }
+
+  .kassa-card {
+    width: 100%;
+    height: auto;
+    min-height: 70vh;
+  }
+
+  .kassa-search-input {
+    width: 100%;
+  }
+
+  .kassa-table {
+    overflow-x: auto;
+    font-size: 12px;
+  }
+
+  .kassa-table .ant-table-tbody>tr>td,
+  .kassa-table .ant-table-thead>tr>th {
+    white-space: nowrap;
+    padding: 8px 4px;
+  }
+
+  .kassa-quantity-control .kassa-button {
+    padding: 0 4px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 12px;
+  }
+
+  .kassa-receipt {
+    width: 100%;
+    padding: 5px;
+  }
+
+  .kassa-receipt h1 {
+    font-size: 16px;
+  }
+
+  .kassa-receipt p {
+    font-size: 14px;
+  }
+
+  .kassa-receipt .kassa-table td {
+    padding: 5px 2px;
+    font-size: 12px;
+  }
+
+  /* Modal adjustments for mobile */
+  .ant-modal {
+    width: 95% !important;
+    margin: 0 auto;
+    top: 50px;
+  }
+
+  .ant-modal-content {
+    padding: 12px !important;
+  }
+
+  .ant-modal-header {
+    padding: 10px 12px !important;
+  }
+
+  .ant-modal-body {
+    padding: 12px !important;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .ant-modal-footer {
+    padding: 10px 12px !important;
+  }
+
+  .ant-form-item {
+    margin-bottom: 12px !important;
+  }
+
+  .kassa-total-amount {
+    font-size: 1.2em;
+  }
+
+  .kassa-sell-button {
+    width: 100%;
+  }
+
+  /* Table improvements */
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+
+  /* Selected products section */
+  .kassa-selected-products h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kassa-header .kassa-button {
+    font-size: 11px;
+    padding: 2px 4px;
+    min-width: 90px;
+  }
+
+  .kassa-table {
+    font-size: 11px;
+  }
+
+  .kassa-table .ant-table-tbody>tr>td,
+  .kassa-table .ant-table-thead>tr>th {
+    padding: 6px 2px;
+  }
+
+  .kassa-total-amount {
+    font-size: 1em;
+  }
+
+  /* Modal adjustments */
+  .ant-modal-title {
+    font-size: 16px !important;
+  }
+
+  .ant-modal-body {
+    padding: 8px !important;
+  }
+
+  /* Form elements */
+  .ant-form-item-label>label {
+    font-size: 12px;
+  }
+
+  .ant-select-item-option-content {
+    font-size: 12px;
+  }
+
+  .ant-select-selection-item {
+    font-size: 12px;
+  }
+
+  /* Receipt */
+  .kassa-receipt h1 {
+    font-size: 14px;
+  }
+
+  .kassa-receipt p {
+    font-size: 12px;
+  }
+
+  .kassa-chek-item b {
+    font-size: 12px;
+  }
+            .kassa-header {
+              height: 15%;
+            
+            }
+      
+            .kassa-card {
+              height: 100%;
+           
+            }
+    
+} 

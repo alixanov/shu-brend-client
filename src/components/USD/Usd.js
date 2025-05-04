@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Input, Button, message } from "antd";
+import { Row, Col, Input, Button, message, Grid } from "antd";
+import { SaveOutlined } from '@ant-design/icons';
 import {
   useGetUsdRateQuery,
   useUpdateUsdRateMutation,
-} from "../../context/service/usd.service"; // USD kursi uchun xizmat
+} from "../../context/service/usd.service";
+
+const { useBreakpoint } = Grid;
 
 export default function Usd() {
-  const { data: usdRateData, isLoading: isUsdRateLoading } =
-    useGetUsdRateQuery(); // USD kursini olish
-  const [updateUsdRate] = useUpdateUsdRateMutation(); // USD kursini yangilash hook
-  const [usdRate, setUsdRate] = useState(usdRateData?.rate || 1); // USD kursi holati
+  const screens = useBreakpoint();
+  const { data: usdRateData, isLoading: isUsdRateLoading } = useGetUsdRateQuery();
+  const [updateUsdRate] = useUpdateUsdRateMutation();
+  const [usdRate, setUsdRate] = useState(usdRateData?.rate || 1);
 
   useEffect(() => {
     if (usdRateData) {
@@ -17,40 +20,50 @@ export default function Usd() {
     }
   }, [usdRateData]);
 
-  // USD kursini yangilash
   const handleUsdRateChange = async () => {
     try {
-      await updateUsdRate(usdRate).unwrap(); // USD kursini raqamga aylantirish
+      await updateUsdRate(usdRate).unwrap();
       message.success("USD kursi muvaffaqiyatli yangilandi!");
     } catch (error) {
       message.error("Xatolik yuz berdi. Iltimos qayta urinib ko'ring.");
     }
   };
 
+  // Размеры для мобильных устройств
+  const inputSize = screens.xs ? "small" : "middle";
+  const buttonSize = screens.xs ? "small" : "middle";
+  const buttonStyle = screens.xs ? {
+    marginLeft: '10px',
+    padding: '0 8px',
+    minWidth: '32px'
+  } : {
+    marginLeft: '20px'
+  };
+
   return (
     <div className="admin-buttons">
-      <Row>
-        <Col span={20}>
+      <Row gutter={screens.xs ? 8 : 16} align="middle">
+        <Col span={screens.xs ? 18 : 20}>
           <Input
+            size={inputSize}
             placeholder="Bugungi USD kursini kiriting"
             value={usdRate}
             onChange={(e) => setUsdRate(e.target.value)}
-       
-
           />
         </Col>
-        <Col span={4}>
+        <Col span={screens.xs ? 6 : 4}>
           <Button
+            size={buttonSize}
             style={{
-              marginLeft: 20,
+              ...buttonStyle,
               background: "#1a2a6b",
-              color: "white", // Исправлена опечатка "whiti" на "white"
+              color: "white",
             }}
             onClick={handleUsdRateChange}
+            icon={screens.xs ? <SaveOutlined /> : null}
           >
-            Saqlash
+            {screens.xs ? null : "Saqlash"}
           </Button>
-
         </Col>
       </Row>
     </div>

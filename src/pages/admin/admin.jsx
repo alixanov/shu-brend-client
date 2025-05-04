@@ -13,6 +13,7 @@ import {
   Table,
   AutoComplete,
   Switch,
+  Drawer,
 } from "antd";
 import { Popconfirm } from "antd";
 import "antd/dist/reset.css";
@@ -32,6 +33,7 @@ import {
   DeleteOutlined,
   HistoryOutlined,
   ShopOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
 import Adminlar from "../Adminlar/Adminlar";
 import Sotuv_tarix from "../sotuv-tarix/Sotuv_tarix";
@@ -58,6 +60,7 @@ export const Admin = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // For mobile sidebar
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [form] = Form.useForm();
   const [createProduct] = useCreateProductMutation();
@@ -81,6 +84,21 @@ export const Admin = () => {
   const [stockFilter, setStockFilter] = useState("all");
   const [purchaseSum, setPurchaseSum] = useState(true);
   const [sellSum, setSellSum] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if the screen is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   useEffect(() => {
     if (usdRateData) {
@@ -237,9 +255,7 @@ export const Admin = () => {
       dataIndex: "purchase_price",
       key: "purchase_price",
       render: (text, record) =>
-        `${text.toFixed(2)}${
-          record.purchase_currency === "usd" ? "$" : "so'm"
-        }`,
+        `${text.toFixed(2)}${record.purchase_currency === "usd" ? "$" : "so'm"}`,
     },
     {
       title: "Sotish narxi",
@@ -275,9 +291,7 @@ export const Admin = () => {
       key: "total_price",
       render: (_, record) => {
         const totalPrice = record.sell_price * record.stock;
-        return `${totalPrice.toFixed(2)} ${
-          record.sell_currency === "usd" ? "$" : "so'm"
-        }`;
+        return `${totalPrice.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"}`;
       },
     },
     {
@@ -286,27 +300,25 @@ export const Admin = () => {
       render: (_, record) => {
         const profit =
           (record.sell_price - record.purchase_price) * record.stock;
-        return `${profit.toFixed(2)} ${
-          record.sell_currency === "usd" ? "$" : "so'm"
-        }`;
+        return `${profit.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"}`;
       },
     },
     {
       title: "Amallar",
       key: "actions",
       render: (_, record) => (
-        <div>
+        <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
           <Button
             type="primary"
-            style={{ marginRight: "10px" }}
             onClick={() => showEditModal(record)}
+            size={isMobile ? "small" : "middle"}
           >
             <EditOutlined />
           </Button>
           <Button
             type="primary"
-            style={{ marginRight: "10px" }}
             onClick={() => showTransferModal(record)}
+            size={isMobile ? "small" : "middle"}
           >
             <BiTransfer />
           </Button>
@@ -316,7 +328,7 @@ export const Admin = () => {
             okText="Ha"
             cancelText="Yo'q"
           >
-            <Button type="primary" danger>
+            <Button type="primary" danger size={isMobile ? "small" : "middle"}>
               <DeleteOutlined />
             </Button>
           </Popconfirm>
@@ -368,7 +380,6 @@ export const Admin = () => {
     )
     .sort((a, b) => a.stock - b.stock);
 
-  // Menyu elementlarini yangi tartibda joylashtiramiz: "Dokon" birinchi, "Sklad tavar qo'shish" oxirida
   const menuItems = [
     access?.dokon && {
       key: "1",
@@ -424,42 +435,48 @@ export const Admin = () => {
       case "7":
         return (
           <>
-            <Button
-              type="primary"
-              onClick={showModal}
-              style={{
-                backgroundColor: "#52c41a",
-                borderColor: "#52c41a",
-                marginBottom: "10px",
-              }}
-              icon={<PlusOutlined />}
-            >
-              Omborga Mahsulot qo'shish +
-            </Button>
-            <Input.Search
-              placeholder="Mahsulot nomi yoki modeli bo'yicha qidirish..."
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{ width: 300, marginLeft: 20 }}
-            />
-            <Select
-              defaultValue="all"
-              style={{ width: 200, marginLeft: 20 }}
-              onChange={handleFilterChange}
-            >
-              <Option value="all">Barcha mahsulotlar</Option>
-              <Option value="runningOut">Tugayotgan mahsulotlar</Option>
-              <Option value="outOfStock">Tugagan mahsulotlar</Option>
-            </Select>
-            <Table
-              dataSource={filteredData?.filter(
-                (st) => st?.storeProduct != true
-              )}
-              loading={isLoading}
-              columns={columns}
-              pagination={{ pageSize: 20 }}
-              rowClassName={rowClassName}
-              scroll={{ x: "max-content" }}
-            />
+            <div className="admin-buttons">
+              <Button
+                type="primary"
+                onClick={showModal}
+                style={{
+                  backgroundColor: "#52c41a",
+                  borderColor: "#52c41a",
+                }}
+                icon={<PlusOutlined />}
+              >
+                Omborga Mahsulot qo'shish +
+              </Button>
+              <div className="search-filter-container">
+                <Input.Search
+                  placeholder="Mahsulot nomi yoki modeli..."
+                  onChange={(e) => handleSearch(e.target.value)}
+                  style={{ width: isMobile ? "100%" : 200 }}
+                />
+                <Select
+                  defaultValue="all"
+                  style={{ width: isMobile ? "100%" : 150 }}
+                  onChange={handleFilterChange}
+                >
+                  <Option value="all">Barcha mahsulotlar</Option>
+                  <Option value="runningOut">Tugayotgan mahsulotlar</Option>
+                  <Option value="outOfStock">Tugagan mahsulotlar</Option>
+                </Select>
+              </div>
+            </div>
+            <div className="table-container">
+              <Table
+                dataSource={filteredData?.filter(
+                  (st) => st?.storeProduct != true
+                )}
+                loading={isLoading}
+                columns={columns}
+                pagination={{ pageSize: 20 }}
+                rowClassName={rowClassName}
+                scroll={{ x: "max-content" }}
+                size={isMobile ? "small" : "middle"}
+              />
+            </div>
           </>
         );
       default:
@@ -468,34 +485,94 @@ export const Admin = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={200} style={{ background: "#1a2a6c" }}>
+    <Layout className="main-layout">
+      {/* Desktop Sidebar - fixed position */}
+      <Sider
+        width={200}
+        style={{
+          background: "#1a2a6c",
+          position: "fixed",
+          height: "100vh",
+          left: 0,
+          zIndex: 100,
+          overflow: "auto"
+        }}
+        className="desktop-sider"
+      >
         <div style={{ padding: "20px", textAlign: "center", color: "white" }}>
-          <h2 className="shu__brend__logo" >SHU BREND</h2>  
+          <h2 className="shu__brend__logo">SHU BREND</h2>
         </div>
         <Menu
           mode="inline"
           selectedKeys={[selectedMenuKey]}
-          onClick={(e) => setSelectedMenuKey(e.key)}
+          onClick={(e) => {
+            setSelectedMenuKey(e.key);
+          }}
           style={{ background: "#1a2a6c", color: "white", borderRight: 0 }}
           items={menuItems}
         />
       </Sider>
-      <Layout>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        title="SHU BREND"
+        placement="left"
+        onClose={() => setIsDrawerOpen(false)}
+        open={isDrawerOpen}
+        className="mobile-drawer"
+        width={250}
+      >
+        <Menu
+          mode="inline"
+          selectedKeys={[selectedMenuKey]}
+          onClick={(e) => {
+            setSelectedMenuKey(e.key);
+            setIsDrawerOpen(false);
+          }}
+          style={{ background: "#fff", color: "#1a2a6c" }}
+          items={menuItems}
+        />
+      </Drawer>
+
+      {/* Main Layout */}
+      <Layout className="site-layout" style={{ marginLeft: isMobile ? 0 : 200 }}>
         <Header
+          className="site-header"
           style={{
+            padding: "0 16px",
             background: "#1a2a6c",
-            padding: "0 20px",
+            position: "sticky",
+            top: 0,
+            zIndex: 99,
+            width: "100%",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-         
-       
+          {isMobile && (
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={() => setIsDrawerOpen(true)}
+              style={{ color: "white" }}
+              className="mobile-menu-button"
+            />
+          )}
+          <div style={{ color: "white", fontWeight: "bold" }}>
+            {menuItems.find(item => item?.key === selectedMenuKey)?.label}
+          </div>
+          <div></div> {/* Empty div for flex spacing */}
         </Header>
-        <Content style={{ padding: "24px", background: "#f0f2f5" }}>
-        
+
+        <Content
+          style={{
+            padding: isMobile ? "12px" : "24px",
+            background: "#f0f2f5",
+            minHeight: "calc(100vh - 64px)",
+            overflow: "initial"
+          }}
+        >
           {renderContent()}
 
           <Modal
@@ -503,10 +580,12 @@ export const Admin = () => {
             open={isModalOpen}
             onCancel={handleCancel}
             footer={null}
+            width={isMobile ? "95%" : 600}
+            centered
           >
             <Form layout="vertical" form={form} onFinish={handleFinish}>
-              <Row gutter={16}>
-                <Col span={12}>
+              <Row gutter={[16, 16]}>
+                <Col xs={24} sm={12}>
                   <Form.Item
                     label="Mahsulot nomi"
                     name="product_name"
@@ -527,7 +606,7 @@ export const Admin = () => {
                     </AutoComplete>
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col xs={24} sm={12}>
                   <Form.Item
                     label="Model"
                     name="model"
@@ -548,9 +627,7 @@ export const Admin = () => {
                     </AutoComplete>
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
+                <Col xs={24} sm={12}>
                   <Form.Item
                     label="Miqdor"
                     name="stock"
@@ -563,7 +640,7 @@ export const Admin = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col xs={24} sm={12}>
                   <Form.Item
                     label="O'lchov birligi"
                     name="count_type"
@@ -583,9 +660,7 @@ export const Admin = () => {
                     </Select>
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row gutter={16} style={{ maxHeight: "65px" }}>
-                <Col span={12}>
+                <Col xs={24} sm={12}>
                   <Form.Item
                     label="Sotib olish narxi"
                     name="purchase_price"
@@ -598,7 +673,7 @@ export const Admin = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col xs={24} sm={12}>
                   <Form.Item
                     label="Sotish narxi"
                     name="sell_price"
@@ -611,27 +686,27 @@ export const Admin = () => {
                     />
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row gutter={16} style={{ marginBottom: "12px" }}>
-                <Col style={{ display: "flex", gap: "6px" }} span={12}>
-                  <p>USD</p>
-                  <Switch
-                    value={purchaseSum}
-                    onChange={() => setPurchaseSum(!purchaseSum)}
-                  />
-                  <p>UZS</p>
+                <Col xs={24} sm={12}>
+                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                    <p>USD</p>
+                    <Switch
+                      checked={purchaseSum}
+                      onChange={() => setPurchaseSum(!purchaseSum)}
+                    />
+                    <p>UZS</p>
+                  </div>
                 </Col>
-                <Col style={{ display: "flex", gap: "6px" }} span={12}>
-                  <p>USD</p>
-                  <Switch
-                    value={sellSum}
-                    onChange={() => setSellSum(!sellSum)}
-                  />
-                  <p>UZS</p>
+                <Col xs={24} sm={12}>
+                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                    <p>USD</p>
+                    <Switch
+                      checked={sellSum}
+                      onChange={() => setSellSum(!sellSum)}
+                    />
+                    <p>UZS</p>
+                  </div>
                 </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={24}>
+                <Col xs={24}>
                   <Form.Item
                     label="Kimdan kelgan"
                     name="kimdan_kelgan"
@@ -654,6 +729,8 @@ export const Admin = () => {
             open={isTransferModalOpen}
             onCancel={handleTransferCancel}
             footer={null}
+            width={isMobile ? "95%" : 400}
+            centered
           >
             <Form layout="vertical" form={form} onFinish={handleAddToStore}>
               <Form.Item

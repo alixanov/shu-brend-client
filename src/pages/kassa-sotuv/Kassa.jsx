@@ -29,11 +29,11 @@ import { useGetUsdRateQuery } from "../../context/service/usd.service";
 import "./Kassa.css";
 import Qarzdor from "../qarzdorlar/Qarzdor";
 import Xarajatlar from "../Xarajatlar/Xarajatlar";
+import Vazvrat from "../vazvrat/Vazvrat";
+import SotuvTarix from "../sotuv-tarix/Sotuv_tarix";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment-timezone";
-import Vazvrat from "../vazvrat/Vazvrat";
-import bir from "../../assets/qr_telegram_ilyosxon (1).png";
-import SotuvTarix from "../sotuv-tarix/Sotuv_tarix";
+
 const { Option } = Select;
 
 export default function Kassa() {
@@ -107,7 +107,7 @@ export default function Kassa() {
 
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter" && isBarcodeScan) {
-      e.preventDefault(); // Prevent form submission when scanning barcode
+      e.preventDefault();
       const product = products?.find(
         (p) => p.barcode.toLowerCase() === searchTerm.toLowerCase()
       );
@@ -314,32 +314,31 @@ export default function Kassa() {
     }
   };
 
-  // This function will handle Enter key press for the entire document
   const handleKeyDown = (e) => {
-    // Only proceed if there are selected products and the key pressed is Enter
-    if (e.key === 'Enter' && selectedProducts.length > 0 && !isModalVisible) {
-      // Check if the active element is not the search input
-      if (document.activeElement !== document.querySelector('input[placeholder="shtrix kodi, mahsulot nomi yoki modeli bo\'yicha qidirish..."]')) {
+    if (e.key === "Enter" && selectedProducts.length > 0 && !isModalVisible) {
+      if (
+        document.activeElement !==
+        document.querySelector(
+          'input[placeholder="shtrix kodi, mahsulot nomi yoki modeli bo\'yicha qidirish..."]'
+        )
+      ) {
         e.preventDefault();
-        showModal(); // Open the payment modal
+        showModal();
       }
     }
 
-    // Handle Enter key press in the payment modal
-    if (e.key === 'Enter' && isModalVisible) {
+    if (e.key === "Enter" && isModalVisible) {
       e.preventDefault();
-      handleSellProducts(); // Confirm the payment
+      handleSellProducts();
     }
   };
 
-  // Add event listener for key down when component mounts
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    // Clean up the event listener when the component unmounts
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedProducts, isModalVisible, paymentMethod, debtorName, debtorPhone, debtDueDate]); // Re-add listener when these dependencies change
+  }, [selectedProducts, isModalVisible, paymentMethod, debtorName, debtorPhone, debtDueDate]);
 
   return (
     <div className="kassa-container">
@@ -348,14 +347,14 @@ export default function Kassa() {
         style={{ display: "flex", justifyContent: "center" }}
         onCancel={() => setChekModal(false)}
         footer={[
-          <Button type="primary" onClick={handlePrint}>
+          <Button className="kassa-button" onClick={handlePrint}>
             Chop etish
           </Button>,
         ]}
         title="To'lov cheki"
       >
         <div
-          className="receipt"
+          className="kassa-receipt"
           ref={receiptRef}
           style={{
             width: "80mm",
@@ -376,13 +375,13 @@ export default function Kassa() {
           >
             SHU BREND DOʻKONI <br />
           </h1>
-          <div className="chek_item">
+          <div className="kassa-chek-item">
             <b>
               Sana:{" "}
               <b>{moment().tz("Asia/Tashkent").format("DD.MM.YYYY HH:mm")}</b>
             </b>
           </div>
-          <table className="table">
+          <table className="kassa-table">
             <thead>
               <tr>
                 <td>№</td>
@@ -425,9 +424,6 @@ export default function Kassa() {
             <span>Xaridingiz uchun raxmat!!!</span> <br />
             <span>+998 94 138 33 33 </span> <br />
             <span>+998 88 926 04 04 </span> <br />
-          </p>
-          <p>
-            {/* <img width={"200px"} src={bir} alt="" /> */}
           </p>
         </div>
       </Modal>
@@ -473,30 +469,26 @@ export default function Kassa() {
 
       <div className="kassa-header">
         <Button
-          type="primary"
+          className="kassa-button"
           onClick={() => setQarzdorModalVisible(true)}
-          style={{ marginRight: 10 }}
         >
           Qarzdorlar
         </Button>
         <Button
-          type="primary"
+          className="kassa-button"
           onClick={() => setXarajatlarModalVisible(true)}
-          style={{ marginRight: 10 }}
         >
           Xarajatlar
         </Button>
         <Button
-          type="primary"
+          className="kassa-button"
           onClick={() => setVazvratModalVisible(true)}
-          style={{ marginRight: 10 }}
         >
           Vazvrat tavarlar
         </Button>
         <Button
-          type="primary"
+          className="kassa-button"
           onClick={() => setSotuvModalVisible(true)}
-          style={{ marginRight: 10 }}
         >
           Sotuv Tarixi
         </Button>
@@ -505,19 +497,7 @@ export default function Kassa() {
       <Card
         title="."
         bordered={false}
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          flexDirection: "column-reverse",
-          alignItems: "stretch",
-          backgroundColor: "#0F4C81",
-          width: "80%",
-          height: "100%",
-          color: "white",
-          borderRadius: 0.1,
-          overflow: "auto",
-        }}
+        className="kassa-card"
         id="kassa"
       >
         <Input
@@ -525,14 +505,14 @@ export default function Kassa() {
           value={searchTerm}
           onChange={handleSearchInput}
           onKeyPress={handleSearchKeyPress}
-          style={{ marginBottom: 20, width: "40%" }}
+          className="kassa-search-input"
           size="large"
         />
 
         <Table
           dataSource={filteredProducts}
           loading={isLoading}
-          style={{ width: "100%" }}
+          className="kassa-table"
           columns={[
             {
               title: "Mahsulot nomi",
@@ -545,16 +525,14 @@ export default function Kassa() {
               dataIndex: "purchase_price",
               key: "purchase_price",
               render: (text, record) =>
-                `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"
-                }`,
+                `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"}`,
             },
             {
               title: "Narxi",
               dataIndex: "sell_price",
               key: "sell_price",
               render: (text, record) =>
-                `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"
-                }`,
+                `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"}`,
             },
             {
               title: "Dokon Miqdori",
@@ -580,7 +558,7 @@ export default function Kassa() {
               key: "actions",
               render: (_, record) => (
                 <Button
-                  type="primary"
+                  className="kassa-btn"
                   onClick={() => handleSelectProduct(record, false)}
                 >
                   Tanlash
@@ -593,12 +571,12 @@ export default function Kassa() {
         />
 
         {selectedProducts.length > 0 && (
-          <form onSubmit={handleFormSubmit}>
-            <div style={{ marginTop: 20 }}>
+          <form onSubmit={handleFormSubmit} className="kassa-selected-products">
+            <div>
               <h2>Tanlangan mahsulotlar:</h2>
               <Table
                 dataSource={selectedProducts}
-                style={{ width: "100%" }}
+                className="kassa-table"
                 columns={[
                   {
                     title: "Mahsulot nomi",
@@ -653,20 +631,20 @@ export default function Kassa() {
                           step="0.1"
                           min="0"
                           placeholder="kg (e.g., 1.5)"
-                          style={{ width: "100px" }}
+                          className="kassa-quantity-input"
                         />
                       ) : (
-                        <div>
+                        <div className="kassa-quantity-control">
                           <Button
+                            className="kassa-button"
                             onClick={() => handleQuantityChange(record._id, -1)}
                             disabled={record.quantity <= 1}
                           >
                             -
                           </Button>
-                          <span style={{ margin: "0 10px" }}>
-                            {record.quantity}
-                          </span>
+                          <span>{record.quantity}</span>
                           <Button
+                            className="kassa-button"
                             onClick={() => handleQuantityChange(record._id, 1)}
                           >
                             +
@@ -679,8 +657,7 @@ export default function Kassa() {
                     key: "actions",
                     render: (_, record) => (
                       <Button
-                        type="primary"
-                        danger
+                        className="kassa-button kassa-button-danger"
                         onClick={() => handleRemoveProduct(record._id)}
                       >
                         O'chirish
@@ -692,14 +669,13 @@ export default function Kassa() {
                 pagination={false}
               />
 
-              <div style={{ marginTop: 20, fontSize: "1.5em" }}>
+              <div className="kassa-total-amount">
                 <strong>Umumiy summa: </strong>
                 {totalAmount.toFixed(2)} so'm
               </div>
               <Button
-                type="primary"
+                className="kassa-button kassa-sell-button"
                 htmlType="submit"
-                style={{ marginTop: 20 }}
               >
                 Sotish
               </Button>

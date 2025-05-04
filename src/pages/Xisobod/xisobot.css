@@ -1,53 +1,129 @@
-@import url(https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;800;900&display=swap);
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-.hisobot_container {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: center;
+/* Main container styles */
+.xisobot-main-container {
+  font-family: 'Poppins', sans-serif;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: calc(100vh - 200px);
+  overflow-y: auto;
 }
+
+/* Date picker container */
+.xisobot-date-picker {
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.xisobot-date-picker .ant-picker {
+  width: 100%;
+  border-radius: 10px;
+  height: 45px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+/* Card container layout */
+.hisobot_container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* Card design */
 .hisobot_card {
-  width: 250px;
-  height: 180px;
+  height: auto;
+  min-height: 140px;
   display: flex;
-  padding: 5px;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 8px;
-  flex-direction: column-reverse;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hisobot_card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(180deg, #4dabf7 0%, #3b82f6 100%);
+  border-radius: 6px 0 0 6px;
 }
 
 .hisobot_card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
-.hisobot_card > b {
-  font-size: 20px;
-  height: 55px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  font-family: "Poppins", sans-serif;
-  align-items: center;
-  font-weight: bold;
-  color: #343a40;
+/* Text styles */
+.hisobot_card>p {
+  font-size: 15px;
+  color: #64748b;
+  margin-bottom: 15px;
+  font-weight: 500;
 }
 
-.hisobot_card > p {
-  width: 100%;
-  text-align: center;
-  height: 45px;
-  font-family: "Poppins", sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: end;
-  font-size: 16px;
-  color: #495057;
+.hisobot_card>b {
+  font-size: 24px;
+  color: #1e293b;
+  font-weight: 600;
+  margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .xisobot-main-container {
+    padding: 15px;
+    height: auto;
+  }
+
+  .hisobot_container {
+    grid-template-columns: 1fr;
+  }
+
+  .hisobot_card {
+    min-height: 120px;
+    padding: 15px;
+  }
+
+  .hisobot_card>p {
+    font-size: 14px;
+  }
+
+  .hisobot_card>b {
+    font-size: 20px;
+  }
+
+  .xisobot-date-picker .ant-picker {
+    height: 40px;
+  }
+}
+
+/* Additional color variations for cards - can be applied as needed */
+.hisobot_card:nth-child(2)::before {
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+}
+
+.hisobot_card:nth-child(3)::before {
+  background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%);
+}
+
+.hisobot_card:nth-child(4)::before {
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+}
+
+.hisobot_card:nth-child(5)::before {
+  background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+}
+
+.hisobot_card:nth-child(6)::before {
+  background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
 }

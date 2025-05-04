@@ -34,7 +34,7 @@ export default function StoreItem() {
   const [updateQuantity] = useUpdateQuantityMutation();
   const [updateProduct] = useUpdateProductMutation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [barcodeSearch, setBarcodeSearch] = useState(""); // Добавлено для поиска по штрих-коду
+  const [barcodeSearch, setBarcodeSearch] = useState("");
   const [stockFilter, setStockFilter] = useState("newlyAdded");
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -44,6 +44,7 @@ export default function StoreItem() {
   const { register, handleSubmit, reset } = useForm();
   const [printData, setPrintData] = useState(null);
   const printRef = useRef();
+  const tableContainerRef = useRef();
 
   const refetchProducts = () => {
     refetchStoreProducts();
@@ -52,6 +53,13 @@ export default function StoreItem() {
   useEffect(() => {
     refetchStoreProducts();
   }, [stockFilter]);
+
+  useEffect(() => {
+    // Добавляем плавный скролл для контейнера таблицы
+    if (tableContainerRef.current) {
+      tableContainerRef.current.style.scrollBehavior = 'smooth';
+    }
+  }, []);
 
   const sortedStoreProducts = [...(storeProducts || [])]
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
@@ -251,7 +259,7 @@ export default function StoreItem() {
   }
 
   return (
-    <div>
+    <div style={{ width: '100%', overflowX: 'auto' }}>
       {/* Hidden printable content */}
       <div style={{ display: "none" }}>
         <div ref={printRef}>
@@ -331,7 +339,7 @@ export default function StoreItem() {
         </form>
       </Modal>
 
-      <div style={{ display: "flex", marginBottom: 20, gap: "10px" }}>
+      <div style={{ display: "flex", marginBottom: 20, gap: "10px", flexWrap: 'wrap' }}>
         <Input
           placeholder="Model, nomi bo'yicha qidirish"
           value={searchQuery}
@@ -356,14 +364,25 @@ export default function StoreItem() {
         </Select>
       </div>
       <AddProductToStore refetchProducts={refetchProducts} />
-      <Table
-        dataSource={filteredStoreProducts}
-        loading={storeLoading}
-        columns={columns}
-        rowKey="_id"
-        pagination={{ pageSize: 20 }}
-        scroll={{ x: "max-content" }}
-      />
+      <div
+        ref={tableContainerRef}
+        style={{
+          width: '100%',
+          overflowX: 'auto',
+          scrollBehavior: 'smooth',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        <Table
+          dataSource={filteredStoreProducts}
+          loading={storeLoading}
+          columns={columns}
+          rowKey="_id"
+          pagination={{ pageSize: 20 }}
+          scroll={{ x: 'max-content' }}
+          style={{ minWidth: '100%' }}
+        />
+      </div>
       <EditProductModal
         visible={isEditModalVisible}
         onCancel={handleEditComplete}

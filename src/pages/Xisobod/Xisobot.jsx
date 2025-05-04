@@ -26,7 +26,7 @@ export default function Xisobot() {
   const [umumiyHarajat, setUmumiyHarajat] = useState(0);
   const [umumiyAstatka, setUmumiyAstatka] = useState(0);
   const [umumiyAstatkaUzs, setUmumiyAstatkaUzs] = useState(0);
-  const [umumiyFoyda, setUmumiyFoyda] = useState(0); // Yangi state foyda uchun
+  const [umumiyFoyda, setUmumiyFoyda] = useState(0);
 
   const handleDateChange = (dates) => {
     setSelectedRange(dates || []);
@@ -37,7 +37,7 @@ export default function Xisobot() {
       selectedRange?.[0]?.startOf("day")?.toDate().getTime() || null;
     const endDate =
       selectedRange?.[1]?.endOf("day")?.toDate().getTime() || null;
-    const currentRate = usdRate?.rate || 13000; // Hozirgi kurs (faqat yangi hisoblar uchun)
+    const currentRate = usdRate?.rate || 13000;
 
     // Qarzdorlik hisoblash
     setUmumiyDebt(
@@ -50,14 +50,14 @@ export default function Xisobot() {
         .reduce((a, b) => a + (b?.debt_amount || 0), 0) || 0
     );
 
-    // Sklad umumiy foyda (bu yerda hozirgi kurs ishlatiladi, chunki bu joriy holatni ko'rsatadi)
+    // Sklad umumiy foyda
     setUmumiySklad(
       skladData?.reduce(
         (a, b) =>
           a +
           (b?.stock || 0) *
-            ((b?.sell_price || 0) - (b?.purchase_price || 0)) *
-            (b?.sell_currency === "usd" ? currentRate : 1),
+          ((b?.sell_price || 0) - (b?.purchase_price || 0)) *
+          (b?.sell_currency === "usd" ? currentRate : 1),
         0
       ) || 0
     );
@@ -68,9 +68,9 @@ export default function Xisobot() {
         (a, b) =>
           a +
           (b?.quantity || 0) *
-            ((b?.product_id?.sell_price || 0) -
-              (b?.product_id?.purchase_price || 0)) *
-            (b?.product_id?.sell_currency === "usd" ? currentRate : 1),
+          ((b?.product_id?.sell_price || 0) -
+            (b?.product_id?.purchase_price || 0)) *
+          (b?.product_id?.sell_currency === "usd" ? currentRate : 1),
         0
       ) || 0
     );
@@ -84,17 +84,15 @@ export default function Xisobot() {
             (!endDate || new Date(item.createdAt).getTime() <= endDate)
         )
         .reduce((a, b) => {
-          const sellPrice = b?.sell_price || 0; // Sotish narxi (so'mda)
-          const buyPrice = b?.buy_price || 0; // Xarid narxi (USD yoki so'm)
+          const sellPrice = b?.sell_price || 0;
+          const buyPrice = b?.buy_price || 0;
           const quantity = b?.quantity || 0;
-          const purchaseCurrency = b?.product_id?.purchase_currency || "uzs"; // Xarid valyutasi
-          const saleUsdRate = b?.usd_rate || currentRate; // Sotuv vaqtidagi kursni olamiz, agar yo'q bo'lsa joriy kurs
+          const purchaseCurrency = b?.product_id?.purchase_currency || "uzs";
+          const saleUsdRate = b?.usd_rate || currentRate;
 
-          // Xarid narxini so'mga aylantiramiz (sotuv vaqtidagi kursdan foydalanamiz)
           const convertedBuyPrice =
             purchaseCurrency === "usd" ? buyPrice * saleUsdRate : buyPrice;
 
-          // Foyda: (sotish narxi - xarid narxi) * miqdor
           const profit = (sellPrice - convertedBuyPrice) * quantity;
           return a + profit;
         }, 0) || 0;
@@ -113,7 +111,7 @@ export default function Xisobot() {
     const calculatedProfit = totalProfitFromSales - totalExpenses;
     setUmumiyFoyda(calculatedProfit < 0 ? 0 : calculatedProfit);
 
-    // Umumiy sotuv daromadi (foyda emas, umumiy sotuv summasi)
+    // Umumiy sotuv daromadi
     const totalSalesAmount =
       saleData
         ?.filter(
@@ -132,13 +130,13 @@ export default function Xisobot() {
         ?.filter((sd) => sd.sell_currency === "usd")
         .reduce((a, b) => a + (b?.stock || 0) * (b?.purchase_price || 0), 0) ||
         0) +
-        (storeData
-          ?.filter((sd) => sd?.product_id?.sell_currency === "usd")
-          .reduce(
-            (a, b) =>
-              a + (b?.quantity || 0) * (b?.product_id?.purchase_price || 0),
-            0
-          ) || 0)
+      (storeData
+        ?.filter((sd) => sd?.product_id?.sell_currency === "usd")
+        .reduce(
+          (a, b) =>
+            a + (b?.quantity || 0) * (b?.product_id?.purchase_price || 0),
+          0
+        ) || 0)
     );
 
     // Sklad va do'kondagi astatka (UZS)
@@ -147,13 +145,13 @@ export default function Xisobot() {
         ?.filter((sd) => sd.sell_currency === "uzs")
         .reduce((a, b) => a + (b?.stock || 0) * (b?.purchase_price || 0), 0) ||
         0) +
-        (storeData
-          ?.filter((sd) => sd?.product_id?.sell_currency === "uzs")
-          .reduce(
-            (a, b) =>
-              a + (b?.quantity || 0) * (b?.product_id?.purchase_price || 0),
-            0
-          ) || 0)
+      (storeData
+        ?.filter((sd) => sd?.product_id?.sell_currency === "uzs")
+        .reduce(
+          (a, b) =>
+            a + (b?.quantity || 0) * (b?.product_id?.purchase_price || 0),
+          0
+        ) || 0)
     );
   }, [
     debtData,
@@ -166,12 +164,12 @@ export default function Xisobot() {
   ]);
 
   return (
-    <div style={{ height: "calc(100vh - 200px)", paddingInline: "12px" }}>
-      <div style={{ marginBottom: "20px" }}>
+    <div className="xisobot-main-container">
+      <div className="xisobot-date-picker">
         <RangePicker
           onChange={handleDateChange}
           format="YYYY-MM-DD"
-          style={{ width: "100%" }}
+          placeholder={["Boshlanish sanasi", "Tugash sanasi"]}
         />
       </div>
 
@@ -193,11 +191,11 @@ export default function Xisobot() {
           <b>{umumiyHarajat.toLocaleString()} UZS</b>
         </div>
         <div className="hisobot_card">
-          <p>Sklad va Do'kon - umumiy astatka ($)</p>
-          <b>{umumiyAstatka.toLocaleString()}$</b>
+          <p>Umumiy astatka ($)</p>
+          <b>{umumiyAstatka.toLocaleString()} $</b>
         </div>
         <div className="hisobot_card">
-          <p>Sklad va Do'kon - umumiy astatka (so'm)</p>
+          <p>Umumiy astatka (so'm)</p>
           <b>{umumiyAstatkaUzs.toLocaleString()} so'm</b>
         </div>
       </div>
