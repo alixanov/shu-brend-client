@@ -31,7 +31,7 @@ const Kassa = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/products")
+      .get("https://shu-brend-server.vercel.app/api/products")
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);

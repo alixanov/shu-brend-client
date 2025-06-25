@@ -509,6 +509,12 @@ export default function Kassa() {
           size="large"
         />
 
+
+
+
+
+        
+
         <Table
           dataSource={filteredProducts}
           loading={isLoading}
@@ -520,13 +526,13 @@ export default function Kassa() {
               key: "product_name",
             },
             { title: "Modeli", dataIndex: "model", key: "model" },
-            {
-              title: "Tan narxi",
-              dataIndex: "purchase_price",
-              key: "purchase_price",
-              render: (text, record) =>
-                `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"}`,
-            },
+            // {
+            //   title: "Tan narxi",
+            //   dataIndex: "purchase_price",
+            //   key: "purchase_price",
+            //   render: (text, record) =>
+            //     `${text.toFixed(2)} ${record.sell_currency === "usd" ? "$" : "so'm"}`,
+            // },
             {
               title: "Narxi",
               dataIndex: "sell_price",
@@ -584,11 +590,11 @@ export default function Kassa() {
                     key: "product_name",
                   },
                   { title: "Model", dataIndex: "model", key: "model" },
-                  {
-                    title: "Tan narxi",
-                    dataIndex: "purchase_price",
-                    key: "purchase_price",
-                  },
+                  // {
+                  //   title: "Tan narxi",
+                  //   dataIndex: "purchase_price",
+                  //   key: "purchase_price",
+                  // },
                   {
                     title: "Narxi",
                     render: (_, record) => (
